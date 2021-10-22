@@ -10,7 +10,7 @@ function generateToken(id) {
     return token = jwt.sign({
         _id: id
     }, process.env.JWT_SECRET,
-        { expiresIn: '1hr' })
+        { expiresIn: '10d' })
 }
 
 const saveUser = async (req, res) => {
@@ -78,7 +78,7 @@ module.exports.register = async (req, res) => {
         await saveUser(req, res);
         res.status(201).json(true);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -86,22 +86,30 @@ module.exports.add = async (req, res) => {
     try {
         const result = await saveUser(req, res);
         const newUser = await User.findById(result._id)
-        .select('_id username createdAt')
-        .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+            .select('_id username createdAt')
+            .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
         res.status(201).json(newUser);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
 
 module.exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password)
+        const { username, password } = req.body;
+        if (!username || !password)
             return res.status(400).json({ msg: "Fields missing !" })
 
-        const user = await User.findOne({ email: email })
+        const userQuery = {
+            $or: [{
+                "email": username
+            }, {
+                "username": username
+            }]
+        }
+
+        const user = await User.findOne(userQuery)
             .populate({ path: 'roles', model: 'Role', select: 'label' }).exec();
         if (!user)
             return res.status(404).json({ msg: "Account does not exist !" })
@@ -118,7 +126,7 @@ module.exports.login = async (req, res) => {
         response.token = token;
         res.status(200).json(response);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -132,21 +140,21 @@ module.exports.refresh = async (req, res) => {
         const token = generateToken(user._id);
         res.status(200).json({ token });
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
 
 module.exports.uploadImage = async (req, res) => {
     try {
-        await singleFileUpload(req, res, 'user', 'images/users', (filename) => {
+        await singleFileUpload(req, res, 'user', 'images/users', async (filename) => {
             const user = await User.findOne({ _id: req.user });
             user.imagePath = filename;
             await user.save();
             return res.status(200).send(req.file)
         })
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -179,11 +187,11 @@ module.exports.edit = async (req, res) => {
         } else {
             user = await User.findOneAndUpdate({ _id: userDetails._id }, userDetails, { new: true })
             const response = await User.findById(user._id).select('_id username createdAt')
-            .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+                .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
             res.status(200).json(response);
         }
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -206,7 +214,7 @@ module.exports.changePassword = async (req, res) => {
         await user.save();
         res.status(200).json(true);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -217,7 +225,7 @@ module.exports.findAll = async (req, res) => {
             .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
         res.status(200).json(users);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -227,7 +235,7 @@ module.exports.findOne = async (req, res) => {
         const user = await User.findById(req.params.id).select('-password -mails -accounts -createdAt -updatedAt -__v');
         res.status(200).json(user);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -241,7 +249,7 @@ module.exports.remove = async (req, res) => {
         await User.deleteOne({ _id: req.params.id });
         res.status(200).json(true);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }
@@ -251,7 +259,7 @@ module.exports.removeUser = async (req, res) => {
         await User.deleteOne({ _id: req.params.id });
         res.status(200).json(true);
     } catch (err) {
-        const {status, message} = errorHandler(err)
+        const { status, message } = errorHandler(err)
         res.status(status).json(message)
     }
 }

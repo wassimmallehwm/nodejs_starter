@@ -1,0 +1,15 @@
+{
+    "details" : "Details",
+    "changePassword" : "Change Password",
+    "deleteAccount" : "Delete Account",
+    "test" : {
+        "testt" : "TEST ENGLISH"
+    },
+    "addToCart" : "7ot fil panier",
+    "dt" : "دت",
+    "stock" : {
+        "inStock" : "في المخزن",
+        "lowStock" : "تبقى القليل",
+        "outOfStock" : "إنتهى من المخزن"
+    }
+}

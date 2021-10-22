@@ -1,0 +1,15 @@
+{
+    "details" : "Détailles",
+    "changePassword" : "Changer le mot de passe",
+    "deleteAccount" : "Effacer le compte",
+    "test" : {
+        "testt" : "TEST FRANCAIS"
+    },
+    "addToCart" : "Ajouter au panier",
+    "dt" : "DT",
+    "stock" : {
+        "inStock" : "En stock",
+        "lowStock" : "Stock faible",
+        "outOfStock" : "Hors stock"
+    }
+}

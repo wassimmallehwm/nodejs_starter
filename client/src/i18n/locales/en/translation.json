@@ -1,0 +1,15 @@
+{
+    "details" : "Details",
+    "changePassword" : "Change Password",
+    "deleteAccount" : "Delete Account",
+    "test" : {
+        "testt" : "TEST ENGLISH"
+    },
+    "addToCart" : "Add to cart",
+    "dt" : "TND",
+    "stock" : {
+        "inStock" : "In stock",
+        "lowStock" : "Low stock",
+        "outOfStock" : "Out of stock"
+    }
+}
