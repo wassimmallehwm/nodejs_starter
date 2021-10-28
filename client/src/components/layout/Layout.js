@@ -14,12 +14,14 @@ const Layout = ({
     const { user } = useContext(AuthContext);
     return user ? (
         <>
-            <div className="flex bg-gray-100">
+            <div className="flex bg-gray-50">
                 <Sidebar isOpen={sideBarOpen} closeSidebar={closeSidebar} isLargeScreen={isLargeScreen} />
                 <Overlay isOpen={sideBarOpen} isLargeScreen={isLargeScreen} closeSidebar={closeSidebar} />
                 <main className="flex-grow flex-col min-h-screen">
                     <Navbar openSidebar={openSidebar} isLargeScreen={isLargeScreen} />
-                    {children}
+                    <div className="p-6">
+                        {children}
+                    </div>
                 </main>
             </div>
         </>

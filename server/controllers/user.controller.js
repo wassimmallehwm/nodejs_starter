@@ -222,7 +222,7 @@ module.exports.changePassword = async (req, res) => {
 module.exports.findAll = async (req, res) => {
     try {
         const users = await User.find().select('_id username createdAt')
-            .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+            .populate({ path: 'roles', model: 'Role', select: 'label' }).exec();
         res.status(200).json(users);
     } catch (err) {
         const { status, message } = errorHandler(err)

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import Transition from '../utils/Transition'
 
 const Sidebar = ({ isOpen, isLargeScreen, closeSidebar }) => {
@@ -12,10 +13,12 @@ const Sidebar = ({ isOpen, isLargeScreen, closeSidebar }) => {
             leaveTo="-ml-56"
         >
             <aside className={`z-20 bg-white w-56 min-h-screen flex flex-col ${!isLargeScreen ? 'fixed' : ''}`}>
-                <div className="bg-white border-r border-b px-4 h-10 flex items-center justify-between">
-                    <span className="text-blue-300 py-2">
-                        Application
-                    </span>
+                <div className="bg-white border-r border-b px-4 h-14 flex items-center justify-between">
+                    <Link to="/">
+                        <span className="text-blue-300 py-2">
+                            Application
+                        </span>
+                    </Link>
                     {
                         !isLargeScreen ? (
                             <button className="w-10 p-1"
@@ -40,18 +43,21 @@ const Sidebar = ({ isOpen, isLargeScreen, closeSidebar }) => {
                 <div className="border-r flex-grow">
                     <nav>
                         <ul>
-                            <li className="p-3">
-                                <a href="#"> Link </a>
-                            </li>
-                            <li className="p-3">
-                                <a href="#"> Link </a>
-                            </li>
-                            <li className="p-3">
-                                <a href="#"> Link </a>
-                            </li>
-                            <li className="p-3">
-                                <a href="#"> Link </a>
-                            </li>
+                            <Link to="users">
+                                <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
+                                    <span className="mx-4"> Users </span>
+                                </li>
+                            </Link>
+                            <Link to="users">
+                                <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
+                                    <span className="mx-4"> Users </span>
+                                </li>
+                            </Link>
+                            <Link to="users">
+                                <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
+                                    <span className="mx-4"> Users </span>
+                                </li>
+                            </Link>
                         </ul>
                     </nav>
                 </div>

@@ -9,7 +9,7 @@ const dbConnect = require('./database/databaseConnect');
 const globalMiddelwares = require('./middleware/global');
 const appRoutes = require('./routers/index.routes');
 
-globalMiddelwares(app);
+globalMiddelwares(app, __dirname);
 dbConnect();
 appRoutes(app);
 

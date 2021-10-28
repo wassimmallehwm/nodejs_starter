@@ -3,9 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 
-const globalMiddelwares = (app) => {
-    app.use('/public', express.static(path.join(__dirname, 'public')));
-    app.use(express.static('resources'));
+const globalMiddelwares = (app, dir) => {
+    app.use('/public', express.static(path.join(dir, 'public')));
     app.use(cors());
     app.use(express.json());
 
