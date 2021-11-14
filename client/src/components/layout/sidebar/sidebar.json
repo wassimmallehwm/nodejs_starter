@@ -1,0 +1,61 @@
+[
+    {
+        "label": "Annuaire",
+        "type": "ACCORDION",
+        "children": [
+            {
+                "label": "Liste des contacts",
+                "type": "LINK",
+                "route": "/contacts"
+            },
+            {
+                "label": "Ajouter un contact",
+                "type": "LINK",
+                "route": "/add-contact"
+            },
+            {
+                "label": "Annuaire",
+                "type": "ACCORDION",
+                "children": [
+                    {
+                        "label": "Liste des contacts",
+                        "type": "LINK",
+                        "route": "/contacts"
+                    },
+                    {
+                        "label": "Ajouter un contact",
+                        "type": "LINK",
+                        "route": "/add-contact"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Articles",
+        "type": "ACCORDION",
+        "children": [
+            {
+                "label": "Liste des articles",
+                "type": "LINK",
+                "route": "/articles"
+            },
+            {
+                "label": "Ajouter un article",
+                "type": "LINK",
+                "route": "/add-article"
+            }
+        ]
+    },
+    {
+        "label": "Administration",
+        "type": "ACCORDION",
+        "children": [
+            {
+                "label": "Collaborateurs",
+                "type": "LINK",
+                "route": "/users"
+            }
+        ]
+    }
+]

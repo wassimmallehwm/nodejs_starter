@@ -1,18 +1,20 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import Transition from '../utils/Transition'
+import SidebarAccordion from '../../utils/SidebarAccordion';
+import Transition from '../../utils/Transition'
+import items from './sidebar.json';
 
 const Sidebar = ({ isOpen, isLargeScreen, closeSidebar }) => {
     return (
         <Transition
             show={isLargeScreen || isOpen}
             enter="transition-all duration-500"
-            enterFrom="-ml-56"
+            enterFrom="-ml-60"
             enterTo="ml-0"
             leave="transition-all duration-500"
-            leaveTo="-ml-56"
+            leaveTo="-ml-60"
         >
-            <aside className={`z-20 bg-white w-56 min-h-screen flex flex-col ${!isLargeScreen ? 'fixed' : ''}`}>
+            <aside className={`z-20 bg-white w-60 min-h-screen flex flex-col ${!isLargeScreen ? 'fixed' : ''}`}>
                 <div className="bg-white border-r border-b px-4 h-14 flex items-center justify-between">
                     <Link to="/">
                         <span className="text-blue-300 py-2">
@@ -43,21 +45,30 @@ const Sidebar = ({ isOpen, isLargeScreen, closeSidebar }) => {
                 <div className="border-r flex-grow">
                     <nav>
                         <ul>
-                            <Link to="users">
+                            {
+                                items && items.map((elem, i) => {
+                                    return elem.type == "ACCORDION" ? (
+                                        <SidebarAccordion key={i} items={elem.children} label={elem.label}/>
+                                    ) : (
+                                        <Link key={i} to={elem.route}>
+                                            <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
+                                                <span className="mx-4"> {elem.label} </span>
+                                            </li>
+                                        </Link>
+                                    )
+                                })
+                            }
+                            {/* <Link to="users">
                                 <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
                                     <span className="mx-4"> Users </span>
                                 </li>
                             </Link>
+                            <SidebarAccordion length={3} />
                             <Link to="users">
                                 <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
                                     <span className="mx-4"> Users </span>
                                 </li>
-                            </Link>
-                            <Link to="users">
-                                <li className="p-3 cursor-pointer rounded-sm hover:bg-gray-200">
-                                    <span className="mx-4"> Users </span>
-                                </li>
-                            </Link>
+                            </Link> */}
                         </ul>
                     </nav>
                 </div>

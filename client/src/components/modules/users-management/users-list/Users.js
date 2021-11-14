@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { findAll, findOne, removeUser, addOrUpdateUser } from '../users.service'
-import { Datatable } from 'react-semantic-ui-datatable';
+//import { Datatable } from 'react-semantic-ui-datatable';
+import { Datatable } from '../../../../datatable';
 import Loader from '../../../../shared/components/Loader';
 import moment from 'moment';
 // import NoData from '../NoData';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import { userImage } from '../../../../utils/file-path/imagePath';
 import Button from '../../../../shared/components/Button';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import Confirmation from '../../../../shared/components/Confirmation';
 import Modal from '../../../../shared/components/Modal';
 import UserForm from '../user-form/UserForm';
+import PageTitle from '../../../../shared/components/PageTitle';
 
 const Users = () => {
     const { user } = useContext(AuthContext)
@@ -27,6 +29,7 @@ const Users = () => {
     }
 
     const [loading, setLoading] = useState(false);
+    const [tableKey, setTableKey] = useState(false);
     const [usersList, setUsersList] = useState(null);
     const [editUser, setEditUser] = useState(initUser);
     const [deleteUser, setDeleteUser] = useState(null);
@@ -35,11 +38,12 @@ const Users = () => {
     const [password, setPassword] = useState('');
     const [passwordCheck, setPasswordCheck] = useState('');
     const [mode, setMode] = useState('add');
+    const didMount = useRef(false);
 
-    const getUsers = () => {
-        user && findAll(user.token).then(
+    const getUsers = (query = {}) => {
+        user && findAll(user.token, query).then(
             (res) => {
-                setUsersList(res.data)
+                setUsersList(res.data.docs)
             },
             error => {
                 console.log(error);
@@ -51,6 +55,7 @@ const Users = () => {
         user && findOne(user.token, id).then(
             (res) => {
                 setEditUser(res.data);
+                openAddModal()
             },
             error => {
                 console.log(error);
@@ -59,41 +64,45 @@ const Users = () => {
     }
 
     const removeItem = (id) => {
-        let list = usersList.filter(elem => elem._id != id);
-        setUsersList(list);
+        setUsersList(prev => prev.filter(elem => elem._id != id));
     }
 
     const addItem = (item) => {
-        let list = usersList;
-        list.push(item);
-        setUsersList(list);
+        // setUsersList(prev => [...prev, item]);
     }
 
     const updateItem = (item) => {
-        let list = usersList;
-        const index = list.findIndex(elem => elem._id == item._id)
-        list[index] = item;
-        setUsersList(list);
+        // setUsersList(prev => prev.map(elem => {
+        //     if (elem._id === item._id) {
+        //         return item;
+        //     }
+        // }));
+        getUsers()
     }
 
     const removeUserAccount = () => {
-        console.log("DELETE : ", deleteUser)
-        // user && removeUser(user.token, deleteUser._id).then(
-        //     (res) => {
-        //         removeItem(deleteUser)
-        //         closeDeleteModal()
-        //         // Toast("SUCCESS", "User deleted successfully");
-        //     },
-        //     error => {
-        //         console.log(error);
-        //         // Toast("ERROR", "Error deleting user !");
-        //     }
-        // )
+        user && removeUser(user.token, deleteUser._id).then(
+            (res) => {
+                getUsers()
+                //removeItem(deleteUser._id)
+                closeDeleteModal()
+                // Toast("SUCCESS", "User deleted successfully");
+            },
+            error => {
+                console.log(error);
+                // Toast("ERROR", "Error deleting user !");
+            }
+        )
     }
 
     useEffect(() => {
         getUsers();
     }, []);
+
+    useEffect(() => {
+        setTableKey(prev => !prev);
+        console.log(usersList)
+    }, [usersList]);
 
     const addOrEditUser = () => {
         setLoading(true);
@@ -106,11 +115,13 @@ const Users = () => {
         user && addOrUpdateUser(user.token, mode, userData).then(
             (res) => {
                 setLoading(false);
-                if (mode === 'add') {
-                    addItem(res.data);
-                } else {
-                    updateItem(res.data);
-                }
+                // if (mode === 'add') {
+                //     addItem(res.data);
+                // } else {
+                //     updateItem(res.data);
+                // }
+                getUsers()
+
                 closeAddModal();
                 // Toast("SUCCESS", "User details saved successfully");
             },
@@ -138,9 +149,8 @@ const Users = () => {
 
     const openEditModal = (data) => {
         setMode('edit')
-        setEditUser(data)
+        //setEditUser(data)
         getOneUser(data._id)
-        openAddModal()
     }
 
     const openDeleteModal = (data) => {
@@ -161,24 +171,20 @@ const Users = () => {
         setEditUser({ ...editUser, enabled: data.checked })
     }
 
-    const userDetailsForm = (
-        <div>FORM</div>
-    )
-
     const addUserModal = (
         <Modal open={editUserModal} confirm={addOrEditUser} cancel={closeAddModal} >
-            <UserForm/>    
-        </Modal> 
+            <UserForm userData={editUser} onChange={onEditUserChange} />
+        </Modal>
     );
 
     const deleteModal = (
-        <Confirmation open={deleteUserModal} confirm={removeUserAccount} 
+        <Confirmation open={deleteUserModal} confirm={removeUserAccount}
             cancel={closeDeleteModal} text={`Are you sure you want to delete ${deleteUser?.username} ?`} />
     );
 
     const isAdmin = (roles) => {
         const admin = roles.find(elem => elem.label === 'ADMIN');
-        return admin !== null;
+        return admin != null;
     }
 
     const colDefs = [
@@ -190,7 +196,7 @@ const Users = () => {
         },
         {
             headerName: 'Role',
-            field: 'role',
+            field: 'roles',
             customRender: true,
             sortable: true,
             filter: true,
@@ -225,26 +231,34 @@ const Users = () => {
                 textAlign: 'center'
             },
             cellRender: (data) => {
-                return isAdmin(data.roles) ?
+                return isAdmin(data.roles) ? null
+                    :
                     (
                         <>
-                            <Button onClick={() => openEditModal(data)} color="blue">
+                            <Button onClick={() => openEditModal(data)} color="primary">
                                 <FaEdit size="14px" />
                             </Button>
-                            <Button onClick={() => openDeleteModal(data)} color="red">
+                            <Button onClick={() => openDeleteModal(data)} color="secondary">
                                 <FaTrash size="14px" />
                             </Button>
                         </>
                     )
-                    : null
 
             }
         }
     ]
 
+    const getServerSideData = (data) => {
+        if (didMount.current)
+            getUsers(data)
+        else
+            didMount.current = true;
+    }
+
 
     const dataTable = (
-        <Datatable sortable paginated columns={colDefs} datasource={usersList} />
+        <Datatable sortable paginated columns={colDefs} datasource={usersList}
+            serverSide onQueryChange={getServerSideData} />
     )
 
 
@@ -252,6 +266,12 @@ const Users = () => {
         <div className="main-div">
             {addUserModal}
             {deleteModal}
+            <PageTitle>Users</PageTitle>
+            <div className="float-right my-2">
+                <Button title="Ajouter" onClick={openAddModal} outline color="secondary">
+                    <FaPlus size="14px" />
+                </Button>
+            </div>
             {usersList ? dataTable : (<Loader />)}
         </div>
     )

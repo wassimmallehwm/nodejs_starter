@@ -5,8 +5,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import ProtectedRoute from './routes/guards/ProtectedRoute';
 import Loader from './shared/components/Loader';
-import Modal from './shared/components/Modal';
-import Confirmation from './shared/components/Confirmation';
 
 const Login = lazy(() => import('./components/modules/auth/Login'));
 const Users = lazy(() => import('./components/modules/users-management/users-list/Users'));
@@ -14,7 +12,7 @@ const Users = lazy(() => import('./components/modules/users-management/users-lis
 
 const TestComp = () => {
   return (
-    <Modal/>
+    <h1>Dashboard</h1>
   )
 }
 

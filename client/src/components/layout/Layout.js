@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import Navbar from './Navbar'
 import Overlay from './Overlay'
-import Sidebar from './Sidebar'
+import Sidebar from './sidebar/Sidebar'
 
 const Layout = ({
     sideBarOpen,

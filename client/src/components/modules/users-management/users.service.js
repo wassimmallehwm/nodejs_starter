@@ -80,8 +80,8 @@ export const login = (data) => {
     return Axios.post(API_URL + "login", data);
 }
 
-export const findAll = (token) => {
-    return Axios.post(API_URL + "findall", null, {
+export const findAll = (token, query) => {
+    return Axios.post(API_URL + "findall", query, {
         headers: {
             "x-auth-token": token
         }

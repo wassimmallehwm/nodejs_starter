@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { singleFileUpload } = require('../utils/imageUpload');
 const errorHandler = require('../utils/errorHandler');
+const formatFilterData = require('../utils/formatFilterData');
+const generateAndHashPass = require('../utils/passGenerator');
 
 function generateToken(id) {
     return token = jwt.sign({
@@ -13,33 +15,29 @@ function generateToken(id) {
         { expiresIn: '10d' })
 }
 
+
+
 const saveUser = async (req, res) => {
-    const { email, password, passwordCheck, username, firstname, lastname, enabled } = req.body;
-    if (!email || !password || !passwordCheck)
+    const { email, username, firstname, lastname } = req.body;
+    if (!email || !username || !firstname || !lastname)
         return res.status(400).json({ msg: "Fields missing !" })
-    if (password != passwordCheck)
-        return res.status(400).json({ msg: "Password and Password Check do not match!" })
     const existinguser = await User.findOne({ email: email });
     if (existinguser)
         return res.status(400).json({ msg: "An account with this email already exists !" })
     if (!username)
         username = email
 
-    const salt = await bcrypt.genSalt()
-    const hashedPassword = await bcrypt.hash(password, salt);
+    
     const user = new User();
     user.email = email;
-    user.password = hashedPassword;
+    user.password = await generateAndHashPass(12);
     user.username = username;
-    user.accounts = [{ label: "Default", email }];
-    const role = await Role.findOne({ label: 'GUEST' });
-    user.role = role._id;
+    const role = await Role.findOne({ label: 'USER' });
+    user.roles = [role._id];
     if (firstname)
         user.firstname = firstname;
     if (lastname)
         user.lastname = lastname;
-    if (enabled)
-        user.enabled = enabled;
     const result = await user.save();
     return result;
 }
@@ -87,7 +85,7 @@ module.exports.add = async (req, res) => {
         const result = await saveUser(req, res);
         const newUser = await User.findById(result._id)
             .select('_id username createdAt')
-            .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+            .populate({ path: 'roles', model: 'Role', select: 'label' }).exec();
         res.status(201).json(newUser);
     } catch (err) {
         const { status, message } = errorHandler(err)
@@ -187,7 +185,7 @@ module.exports.edit = async (req, res) => {
         } else {
             user = await User.findOneAndUpdate({ _id: userDetails._id }, userDetails, { new: true })
             const response = await User.findById(user._id).select('_id username createdAt')
-                .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+                .populate({ path: 'roles', model: 'Role', select: 'label' }).exec();
             res.status(200).json(response);
         }
     } catch (err) {
@@ -224,6 +222,36 @@ module.exports.findAll = async (req, res) => {
         const users = await User.find().select('_id username createdAt')
             .populate({ path: 'roles', model: 'Role', select: 'label' }).exec();
         res.status(200).json(users);
+    } catch (err) {
+        const { status, message } = errorHandler(err)
+        res.status(status).json(message)
+    }
+}
+
+module.exports.findAllGrid = async (req, res) => {
+    const { page = 1, limit = 20, filterData, sortField, sortDir } = req.body;
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+        select: 'username createdAt',
+        lean: true,
+        sort: {},
+        populate: { path: 'roles', model: 'Role', select: 'label' }
+
+    };
+    const query = {
+        enabled: true,
+        ...formatFilterData(filterData)
+    };
+
+    if (sortField && sortDir) {
+        options.sort = {
+            [sortField]: sortDir
+        }
+    }
+    try {
+        const productsList = await User.paginate(query, options);
+        res.status(200).json(productsList);
     } catch (err) {
         const { status, message } = errorHandler(err)
         res.status(status).json(message)

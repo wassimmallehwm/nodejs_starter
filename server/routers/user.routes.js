@@ -12,6 +12,7 @@ const {
   update,
   edit,
   add,
+  findAllGrid,
 } = require("../controllers/user.controller");
 const { auth, admin, ownerOrAdmin } = require('../middleware/auth');
 const router = express.Router();
@@ -26,7 +27,7 @@ router.post('/upload', auth, uploadImage);
 
 router.post('/change-password', auth, changePassword);
 
-router.post('/findAll', auth, admin, findAll);
+router.post('/findAll', auth, admin, findAllGrid);
 
 router.post('/edit', auth, admin, edit);
 
